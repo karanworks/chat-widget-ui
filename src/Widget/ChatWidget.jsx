@@ -7,11 +7,11 @@ import { v4 as uuid } from "uuid";
 const ChatWidget = ({ socket }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! How can I help you today?", sender: "agent" },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [widgetStyles, setWidgetStyles] = useState(null);
+  const [chatDetails, setDetailsDetails] = useState(null);
+  const [response, setResponse] = useState(null);
 
   const workspaceId = localStorage.getItem("widget_workspaceId") || null;
   let visitor = JSON.parse(localStorage.getItem("visitor"));
@@ -29,44 +29,90 @@ const ChatWidget = ({ socket }) => {
       });
   }, []);
 
+  useEffect(() => {
+    axios
+      .get(
+        `http://localhost:3010/api/visitor-details/${workspaceId}/${visitor.visitorId}`
+      )
+      .then((res) => {
+        setDetailsDetails(res.data.data);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:3010/api/visitor-chat/${visitor.visitorId}`)
+      .then((res) => {
+        setMessages(res.data.data?.messages);
+        console.log("VISITOR'S CHAT ->", res);
+      });
+  }, []);
+
   const handleSendMessage = (e) => {
     e.preventDefault();
 
-    socket.emit(
-      "visitor-message-request",
-      {
-        workspaceId,
-        visitor,
-      },
-      (response) => {
-        console.log("RECEIVED RESPONSE ->", response);
+    if (!newMessage) {
+      return;
+    }
 
-        socket.emit("message", {
-          message: { content: newMessage },
-          chatId: response.chatId,
-          sender: visitor,
-          visitorRequestId: response.id,
+    console.log("CHAT DETAILS ->", chatDetails);
+
+    if (!chatDetails) {
+      socket.emit(
+        "visitor-message-request",
+        {
           workspaceId,
-        });
-      }
-    );
+          visitor,
+        },
+        (response) => {
+          console.log("VISITOR MESSAGE REQUEST GETTING TRIGGERED");
 
-    socket.on("visitor-message-request", (request) => {
-      console.log("REQUEST ->", request);
-    });
+          setResponse(response);
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        text: newMessage,
-        sender: "user",
-      },
-    ]);
+          if (response.chatId) {
+            socket.emit("message", {
+              message: { content: newMessage },
+              chatId: response.chatId,
+              sender: { ...visitor, type: "visitor" },
+              to: workspaceId,
+            });
+          }
+        }
+      );
+    } else {
+      socket.emit("message", {
+        message: { content: newMessage },
+        chatId: chatDetails.id,
+        sender: { ...visitor, type: "visitor" },
+        to: workspaceId,
+      });
+    }
+
+    // ********************************************************
+    // ************** THIS CAUSES ANOTHER EVENT ***************
+    // ********************************************************
 
     setNewMessage("");
     // }
   };
+
+  const handleMessage = (message) => {
+    console.log("Message received ->", message);
+    setMessages((prevMessages) => {
+      console.log("PREV MESSAGES ->", prevMessages);
+      console.log("MESSAGE ->", message);
+
+      return prevMessages ? [...prevMessages, message] : [message];
+    });
+  };
+
+  useEffect(() => {
+    socket.on("message", handleMessage);
+
+    return () => {
+      socket.off("message", handleMessage);
+    };
+  }, []);
 
   return (
     <div className="chat-container">
@@ -93,14 +139,30 @@ const ChatWidget = ({ socket }) => {
             {!isMinimized && (
               <>
                 <div className="chat-messages">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`message-wrapper ${message.sender}`}
-                    >
-                      <div className="message">{message.text}</div>
-                    </div>
-                  ))}
+                  {messages?.length > 0 &&
+                    messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`message-wrapper ${message.sender.type}`}
+                      >
+                        {/* {console.log(message)} */}
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <div className="message">{message.content}</div>
+
+                          {message.sender.type === "agent" && (
+                            <div>
+                              <span
+                                style={{ fontSize: "12px", color: "#787878" }}
+                              >
+                                {message.sender.name}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                 </div>
 
                 <form onSubmit={handleSendMessage} className="chat-input-form">
