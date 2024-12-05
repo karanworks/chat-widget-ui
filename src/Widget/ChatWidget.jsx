@@ -17,9 +17,13 @@ const ChatWidget = ({ socket }) => {
   let visitor = JSON.parse(localStorage.getItem("visitor"));
 
   useEffect(() => {
+    console.log("WORKSPACE ID ->", workspaceId);
+
     axios
       .get(`http://localhost:3010/api/widget-settings/${workspaceId}`)
       .then((res) => {
+        console.log("RESULT ->", res);
+
         if (res.data.data.theme) {
           setWidgetStyles(res.data.data.theme);
         }
@@ -44,7 +48,6 @@ const ChatWidget = ({ socket }) => {
       .get(`http://localhost:3010/api/visitor-chat/${visitor.visitorId}`)
       .then((res) => {
         setMessages(res.data.data?.messages);
-        console.log("VISITOR'S CHAT ->", res);
       });
   }, []);
 
@@ -65,8 +68,6 @@ const ChatWidget = ({ socket }) => {
           visitor,
         },
         (response) => {
-          console.log("VISITOR MESSAGE REQUEST GETTING TRIGGERED");
-
           setResponse(response);
 
           if (response.chatId) {
