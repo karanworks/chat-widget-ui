@@ -1,0 +1,24 @@
+.chat-messages {
+  /* For custom scrollbar styles */
+  overflow-y: scroll; /* Ensure the scrollbar appears */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #25a0e2 #f1f1f1; /* Firefox: color of scrollbar thumb and track */
+}
+
+/* For Webkit browsers like Chrome, Safari, and Edge */
+.chat-messages::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Track color */
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: #25a0e2; /* Scroll thumb color */
+  border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background-color: #1a8ab1; /* Darker thumb color on hover */
+}

@@ -4,21 +4,21 @@ import ChatWidget from "./Widget/ChatWidget";
 import socket from "./socket/socket";
 import { v4 as uuid } from "uuid";
 
-function generateRandomName() {
-  const randomNumber = Math.floor(100000 + Math.random() * 900000); // Ensures a 6-digit number
-  return `ASC${randomNumber}`;
-}
+// function generateRandomName() {
+//   const randomNumber = Math.floor(100000 + Math.random() * 900000); // Ensures a 6-digit number
+//   return `ASC${randomNumber}`;
+// }
 
 let visitor = JSON.parse(localStorage.getItem("visitor"));
 
-if (!visitor) {
-  visitor = {
-    visitorId: uuid(),
-    name: generateRandomName(),
-  };
+// if (!visitor) {
+//   visitor = {
+//     visitorId: uuid(),
+//     name: generateRandomName(),
+//   };
 
-  localStorage.setItem("visitor", JSON.stringify(visitor));
-}
+//   localStorage.setItem("visitor", JSON.stringify(visitor));
+// }
 
 function App() {
   useEffect(() => {
