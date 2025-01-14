@@ -2,27 +2,19 @@ import { useEffect } from "react";
 import "./App.css";
 import ChatWidget from "./Widget/ChatWidget";
 import socket from "./socket/socket";
-import { v4 as uuid } from "uuid";
-
-// function generateRandomName() {
-//   const randomNumber = Math.floor(100000 + Math.random() * 900000); // Ensures a 6-digit number
-//   return `ASC${randomNumber}`;
-// }
 
 let visitor = JSON.parse(localStorage.getItem("visitor"));
-
-// if (!visitor) {
-//   visitor = {
-//     visitorId: uuid(),
-//     name: generateRandomName(),
-//   };
-
-//   localStorage.setItem("visitor", JSON.stringify(visitor));
-// }
+let workspaceId = localStorage.getItem("widget_workspaceId");
 
 function App() {
   useEffect(() => {
-    socket.emit("visitor-join", visitor);
+    if (visitor) {
+      console.log("VISITOR CONDITION EXECUTED ->", visitor);
+      console.log("WORKSPACE ID ON VISITOR JOIN ->", workspaceId);
+
+      socket.emit("visitor-join", { ...visitor, workspaceId });
+      socket.emit("visitor-status", { visitor, status: "online" }, workspaceId);
+    }
   }, []);
   return <ChatWidget socket={socket} />;
 }

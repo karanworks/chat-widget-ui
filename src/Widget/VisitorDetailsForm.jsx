@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import "./VisitorDetailsForm.css";
-import { MessageCircle, Send, X, Minus, MessageCircleX } from "lucide-react";
 
 function VisitorDetailsForm({
   nameValue,
   setNameValue,
   emailValue,
   setEmailValue,
-  messageValue,
-  setMessageValue,
   error,
   handleVisitorDetailFormSubmit,
+  newMessage,
+  setNewMessage,
 }) {
   return (
     <div className="wrapper">
@@ -57,8 +56,10 @@ function VisitorDetailsForm({
                 type="text"
                 className="input-field"
                 placeholder="Type your message"
-                value={messageValue}
-                onChange={(e) => setMessageValue(e.target.value)}
+                // value={messageValue}
+                value={newMessage}
+                // onChange={(e) => setMessageValue(e.target.value)}
+                onChange={(e) => setNewMessage(e.target.value)}
               />
             </div>
 
