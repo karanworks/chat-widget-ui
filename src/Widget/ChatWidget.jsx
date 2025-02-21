@@ -141,6 +141,8 @@ const ChatWidget = ({ socket }) => {
             workspace.id
           );
 
+          console.log("GETTING WORKSPACE FOR TESTING ->", workspace);
+
           if (visitor) {
             localStorage.setItem(
               "visitor",
