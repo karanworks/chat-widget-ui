@@ -200,6 +200,13 @@ const ChatWidget = ({ socket }) => {
       setError(`Please enter ${missingFields.join(", ")}`);
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailValue)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     socket.emit("visitor-join", {
       name: nameValue,
       email: emailValue,
