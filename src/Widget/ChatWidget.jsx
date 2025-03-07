@@ -191,11 +191,15 @@ const ChatWidget = ({ socket }) => {
   function handleVisitorDetailFormSubmit(e) {
     e.preventDefault();
 
-    if (!nameValue || !emailValue) {
-      setError("Please fill all fields!");
+    const missingFields = [];
+    if (!nameValue) missingFields.push("Name");
+    if (!emailValue) missingFields.push("Email");
+    if (!newMessage) missingFields.push("Message");
+
+    if (missingFields.length > 0) {
+      setError(`Please enter ${missingFields.join(", ")}`);
       return;
     }
-
     socket.emit("visitor-join", {
       name: nameValue,
       email: emailValue,
